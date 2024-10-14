@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/vaidyasETP/vaidyasETP.iml" filepath="$PROJECT_DIR$/vaidyasETP/vaidyasETP.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/vaidyasETP JWT.iml" filepath="$PROJECT_DIR$/.idea/vaidyasETP JWT.iml" />
     </modules>
   </component>

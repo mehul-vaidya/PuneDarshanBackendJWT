@@ -23,14 +23,20 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
 import javax.sql.DataSource;
+import java.util.Arrays;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SpringSecurity {
+public class SpringSecurity  {
 
     /*
     @Autowired
@@ -63,7 +69,8 @@ public class SpringSecurity {
         http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/places/**").permitAll()
                         .requestMatchers("/signin").permitAll()
-                        .requestMatchers("/private/**").authenticated()
+                      //.requestMatchers("/private/**").authenticated()
+                        .requestMatchers("/private/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
@@ -76,19 +83,46 @@ public class SpringSecurity {
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
         //http.httpBasic(withDefaults());
 
-        http.headers(headers -> headers
-                .frameOptions(frameOptions ->
-                        frameOptions.sameOrigin()
-                )
-        );
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+        //http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
 
         http.csrf(csrf -> csrf.disable());
+        //http.cors(cors -> cors.disable());
+        http.cors(withDefaults());
+
+        //http.csrf(AbstractHttpConfigurer::disable)
+        //        .cors(AbstractHttpConfigurer::disable);
+                /*
+                .authorizeHttpRequests(request -> {
+                    request.requestMatchers("*").permitAll();
+                    request.requestMatchers("*")
+                            .hasAnyAuthority("*");
+                }).formLogin(Customizer.withDefaults());
+                 */
+
         http.addFilterBefore(authenticationJwtTokenFilter(),
                 UsernamePasswordAuthenticationFilter.class);
 
-
         return http.build();
     }
+
+
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST","DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList("X-Requested-With", "Origin", "Content-Type", "Accept",
+                "Authorization", "Access-Control-Allow-Credentials", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods",
+                "Access-Control-Allow-Origin", "Access-Control-Expose-Headers", "Access-Control-Max-Age",
+                "Access-Control-Request-Headers", "Access-Control-Request-Method", "Age", "Allow", "Alternates",
+                "Content-Range", "Content-Disposition", "Content-Description"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 
     @Bean
     public UserDetailsService  userDetailsService(){

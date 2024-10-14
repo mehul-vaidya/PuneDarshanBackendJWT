@@ -6,11 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins="http://localhost:4200",allowCredentials = "true")
 @RestController
 public class TouristPlaceController {
     @Autowired
     TouristPlaceRepository touristPlaceRepo;
 
+    @GetMapping("/places")
+    public Iterable<TouristPlace> getTouristPlace(){
+        Iterable<TouristPlace> touristPlaces = touristPlaceRepo.findAll();
+        return touristPlaces;
+    }
     @GetMapping("/places/{touristPlace}")
     public TouristPlace getTouristPlace(@PathVariable("touristPlace") String touristPlaceName){
         TouristPlace touristPlace = touristPlaceRepo.findByPlacename(touristPlaceName);
@@ -32,7 +38,7 @@ public class TouristPlaceController {
         return touristPlaceCheck;
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/private/places/{touristPlace}")
     public String deleteTouristPlace(@PathVariable("touristPlace") String touristPlace){
         TouristPlace touristPlaceCheck =  touristPlaceRepo.findByPlacename(touristPlace);
