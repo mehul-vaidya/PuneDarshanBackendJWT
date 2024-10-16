@@ -1,5 +1,6 @@
 package com.mdv.vaidyasETP.controller;
 
+import com.mdv.vaidyasETP.entities.Response;
 import com.mdv.vaidyasETP.entities.TouristPlace;
 import com.mdv.vaidyasETP.repository.TouristPlaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public class TouristPlaceController {
         TouristPlace touristPlaceCheck =  touristPlaceRepo.findByPlacename(touristPlace.getPlacename());
         if(touristPlaceCheck==null){
             touristPlaceRepo.save(touristPlace);
+
         } //if it exists then update description
         else{
             touristPlaceCheck.setDescription(touristPlace.getDescription());
@@ -38,10 +40,11 @@ public class TouristPlaceController {
         return touristPlaceCheck;
     }
 
+    /*
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/private/places/{touristPlace}")
-    public String deleteTouristPlace(@PathVariable("touristPlace") String touristPlace){
-        TouristPlace touristPlaceCheck =  touristPlaceRepo.findByPlacename(touristPlace);
+    @DeleteMapping("/private/places")
+    public String deleteTouristPlace(@RequestBody TouristPlace touristPlace){
+        TouristPlace touristPlaceCheck =  touristPlaceRepo.findByPlacename(touristPlace.getPlacename());
         if(touristPlaceCheck!=null){
             touristPlaceRepo.deleteById(touristPlaceCheck.getId());
             return "This Tourist Place is Deleted";
@@ -49,6 +52,24 @@ public class TouristPlaceController {
             return "This Tourist Place does not exists in DB";
         }
     }
+    */
+
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/private/places/{touristPlace}")
+    public Response deleteTouristPlace(@PathVariable("touristPlace") String touristPlace){
+        TouristPlace touristPlaceCheck =  touristPlaceRepo.findByPlacename(touristPlace);
+        Response response = new Response();
+        if(touristPlaceCheck!=null){
+            touristPlaceRepo.deleteById(touristPlaceCheck.getId());
+            response.setSuccess_or_fail("Success");
+        }else{
+            response.setSuccess_or_fail("Fail");
+        }
+        return response;
+    }
+
 
     //handle error
     @GetMapping("/*")
